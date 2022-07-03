@@ -12,44 +12,39 @@ SHT85 sht;
 ML8511 ml8511(ML8511_ANALOGPIN);
 Plantower_PMS7003 pms7003 = Plantower_PMS7003();
 
-void getHumidTemp()
+struct SHT_sensor 
+{
+  float humid,temp;
+};
+
+SHT_sensor getHumidTemp()
 { 
   sht.read();
+
+  SHT_sensor humidTemp;
   
-  float temp = sht.getTemperature();
-  float humid = sht.getHumidity();
+  humidTemp.temp = sht.getTemperature();
+  humidTemp.humid = sht.getHumidity();
 
-  Serial.print("humidity:");
-  Serial.print(humid,4);
-  Serial.print("%\t");
-
-  Serial.print("temperature:");
-  Serial.print(temp,4);
-  Serial.println("℃");
+  return humidTemp;
 }
 
-void getUVData()
+float getUVData()
 {
   float UV = ml8511.getUV();
-
-  Serial.print("UV index:");
-  Serial.print(UV,4);
-  Serial.println("mW cm^2"); 
+  return UV;
 }
 
-void getPM_2_5()
+int getPM_2_5()
 {
   int PM_2_5 = pms7003.getPM_2_5();
-
-  Serial.print("PM2.5:");
-  Serial.println(PM_2_5);
+  return PM_2_5;
 }
 
-void getRainWater()
+int getRainWater()
 {
-  int RainWater = analogRead(MKES12_PIN);
-  
-  Serial.println(RainWater);
+  int rainWater = analogRead(MKES12_PIN);
+  return rainWater;
 }
 
 void setup() 
@@ -61,7 +56,34 @@ void setup()
   ml8511.enable();
 }
 
+void printData(SHT_sensor humidTemp, int PM_2_5, int rainWater, float UV)
+{ 
+    Serial.print("PM2.5:");
+    Serial.print(PM_2_5);
+    Serial.println("μg/m3");
+    
+    Serial.print("UV index:");
+    Serial.print(UV,4);
+    Serial.println("mW cm^2");
+     
+    Serial.print("humidity:");
+    Serial.print(humidTemp.humid,4);
+    Serial.print("%\t");
+  
+    Serial.print("temperature:");
+    Serial.print(humidTemp.temp,4);
+    Serial.println("℃");
+  
+    Serial.print("Rain water:");
+    Serial.println(rainWater);
+}
 void loop() 
 {
-  delay(2000);
+    SHT_sensor humidTemp = getHumidTemp();
+    int PM_2_5 = getPM_2_5;
+    int rainWater = getRainWater();
+    float UV = getUVData();
+    
+    printData(humidTemp,PM_2_5,rainWater,UV);
+    delay(2000);
 }
