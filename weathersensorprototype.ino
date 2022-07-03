@@ -11,32 +11,39 @@ SHT85 sht;
 ML8511 ml8511(ML8511_ANALOGPIN);
 Plantower_PMS7003 pms7003 = Plantower_PMS7003();
 
-struct SHT_sensor
-{
-    float temp, humid;
-};
-
-SHT_sensor getHumidTemp()
+void getHumidTemp()
 { 
   sht.read();
   
-  SHT_sensor shtData;
-  shtData.temp = sht.getTemperature();
-  shtData.humid = sht.getHumidity();
-  return shtData;
-}
-
-float getUVData()
-{
-  float UVData = ml8511.getUV();
-  return UVData; 
-}
-
-void setup() {
-  sht.begin(I2C_ADDRESS);
-  light.enable();
-}
-
-void loop() {
+  float temp = sht.getTemperature();
+  float humid = sht.getHumidity();
   
+  Serial.print(humid,4);
+  Serial.print("%\t");
+  Serial.print(temp,4);
+  Serial.println("℃");
+}
+
+void getUVData()
+{
+  float UV = ml8511.getUV();
+  
+  Serial.print(UV,4);
+  Serial.println("mW cm^2"); 
+}
+
+void setup() 
+{
+  Serial.begin(115200);
+  Wire.begin();
+  
+  sht.begin(I2C_ADDRESS);
+  ml8511.enable();
+}
+
+void loop() 
+{
+  getHumidTemp();
+  getUVData();
+  delay(2000);
 }
